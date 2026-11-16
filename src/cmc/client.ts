@@ -76,6 +76,24 @@ export class CmcClient {
     return normalizeAssets(r.data);
   }
 
+  /**
+   * Quotes by rwa_id, in batches. Safer than symbols for bulk calls: symbols
+   * such as BRK.B carry a dot, repeat across asset types, and one bad symbol
+   * fails the whole request with "Invalid parameter".
+   */
+  async quotesById(ids: number[], batch = 100): Promise<RwaQuote[]> {
+    const unique = [...new Set(ids)];
+    const out: RwaQuote[] = [];
+    for (let i = 0; i < unique.length; i += batch) {
+      const r = await this.get<{ rwa_assets: RwaQuote[] } | Record<string, RwaQuote>>(
+        "/v5/real-world-assets/quotes/latest",
+        { rwa_id: unique.slice(i, i + batch).join(",") },
+      );
+      out.push(...normalizeAssets<RwaQuote>(r.data));
+    }
+    return out;
+  }
+
   async info(symbols: string[]): Promise<RwaInfo[]> {
     const r = await this.get<{ rwa_assets: RwaInfo[] } | Record<string, RwaInfo>>(
       "/v5/real-world-assets/info",

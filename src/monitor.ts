@@ -42,8 +42,10 @@ export async function snapshot(cmc: CmcClient, ctx: Context, opts: MonitorOption
   const perType = opts.perType ?? 25;
   const listed: RwaQuote[] = [];
   for (const t of types) listed.push(...(await cmc.list(t, perType)));
-  const withTokens = listed.filter((a) => a.has_tokens !== false);
-  const quotes = await cmc.quotes(withTokens.map((a) => a.symbol));
+  // CMC returned one BRK.B entry with rwa_id null on 2026-11-16; skip entries without an id.
+  const withTokens = listed.filter((a) => a.has_tokens !== false && typeof a.rwa_id === "number");
+  const ids = new Set(withTokens.map((a) => a.rwa_id));
+  const quotes = (await cmc.quotesById([...ids])).filter((q) => ids.has(q.rwa_id));
   const tokens = quotes.flatMap((a) => (a.tokens ?? []).filter((t) => t.issuer_name !== "NA (Derivatives)").map((t) => ({ a, t })));
   const infos = await cmc.cryptoInfo([...new Set(tokens.map((x) => x.t.crypto_id))]);
 

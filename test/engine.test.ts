@@ -150,3 +150,18 @@ describe("curated registry (registry/issuers.json)", () => {
     }
   });
 });
+
+describe("bulk quotes", () => {
+  it("snapshot asks quotes by rwa_id, deduplicated, never with a null id", async () => {
+    const cmc = new CmcClient({ fixturesDir: FIX });
+    await snapshot(cmc, await ctx(), { types: ["stock", "etf", "commodity"] });
+    const q = cmc.calls.filter((c) => c.endpoint.endsWith("/quotes/latest"));
+    expect(q.length).toBeGreaterThan(0);
+    for (const c of q) {
+      expect(c.query.symbol).toBeUndefined();
+      const ids = c.query.rwa_id.split(",");
+      expect(ids.every((x) => /^\d+$/.test(x))).toBe(true);
+      expect(new Set(ids).size).toBe(ids.length);
+    }
+  });
+});
