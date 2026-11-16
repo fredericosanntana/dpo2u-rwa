@@ -31,4 +31,9 @@ if grep -q "$CMC_API_KEY" "$DATA/latest.json"; then echo "abort: key found in sn
 
 cp "$DATA/latest.json" "$DATA/history/$(date -u +%F).json"
 install -m 644 "$DATA/latest.json" "$RWA_PUBLISH_PATH.tmp" && mv "$RWA_PUBLISH_PATH.tmp" "$RWA_PUBLISH_PATH"
+# The page also reads the policy and the issuer registry next to the snapshot;
+# publish them from the repo so they never drift from the code that ran.
+PUB_DIR="$(dirname "$RWA_PUBLISH_PATH")"
+install -m 644 policy/reference-v0.json "$PUB_DIR/policy.json.tmp" && mv "$PUB_DIR/policy.json.tmp" "$PUB_DIR/policy.json"
+install -m 644 registry/issuers.json "$PUB_DIR/issuers.json.tmp" && mv "$PUB_DIR/issuers.json.tmp" "$PUB_DIR/issuers.json"
 echo "published $(date -u +%FT%TZ)"
