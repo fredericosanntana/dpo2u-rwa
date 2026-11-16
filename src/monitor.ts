@@ -24,6 +24,7 @@ export interface MonitorSnapshot {
   api_calls: CmcClient["calls"];
   credits_used: number;
   disclaimer: string;
+  limitations: string[];
 }
 
 export interface MonitorOptions {
@@ -87,6 +88,7 @@ export async function snapshot(cmc: CmcClient, ctx: Context, opts: MonitorOption
     api_calls: cmc.calls,
     credits_used: cmc.creditsUsed(),
     disclaimer: ctx.policy.disclaimer,
+    limitations: ctx.policy.limitations ?? [],
   };
 }
 

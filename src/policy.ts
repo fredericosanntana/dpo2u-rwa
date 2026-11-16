@@ -12,6 +12,7 @@ export interface Policy {
   outcomes: { pass: string; warn: string; fail: string };
   criteria: Array<{ id: string; title: string; pass: string; warn: string; fail: string }>;
   disclaimer: string;
+  limitations?: string[];
 }
 
 const here = dirname(fileURLToPath(import.meta.url));

@@ -23,6 +23,11 @@ Each token gets one outcome, **meets**, **attention** or **does not meet** the p
 
 Part of [DPO2U](https://dpo2u.com), compliance as a protocol for institutions and the machine economy.
 
+## Known limitations
+
+- **Local authorization is not checked yet.** "Meets" means no restriction was found in the issuer's own terms for that investor type and country. It does not mean the offer is authorized in the investor's country (in Brazil, CVM registration or an exemption). A criterion for this is under evaluation. Every snapshot carries this note in `limitations`.
+- Issuers with weak primary sources (Matrixdock, Comtech Gold, Swarm, PreStocks) stay in "attention".
+
 ## Quick start
 
 ```bash
