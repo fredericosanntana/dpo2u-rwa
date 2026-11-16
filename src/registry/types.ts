@@ -9,6 +9,8 @@ export interface IssuerRecord {
   licence: { type: string | null; reference: string | null; url: string | null; status?: "active" | "revoked" | "suspended" } | null;
   custodian: string | null;
   sale_restrictions: SaleRestriction[] | null;
+  /** True only when the full eligibility terms were read (e.g. a complete country list). */
+  sale_terms_complete?: boolean;
   products: string[];
   confidence: "high" | "medium" | "low";
   notes?: string;

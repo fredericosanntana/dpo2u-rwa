@@ -130,3 +130,23 @@ describe("units", () => {
     expect(cgo?.signals.find((s) => s.id === "price_consistency")?.status).toBe("pass");
   });
 });
+
+describe("curated registry (registry/issuers.json)", () => {
+  it("Ondo Global Markets is barred for retail investors in Brazil, Robinhood stock tokens outside the EEA", async () => {
+    const { loadRegistry } = await import("../src/registry/load.js");
+    const c = { ...(await ctx("BR")), registry: await loadRegistry() };
+    const r = await precheck(new CmcClient({ fixturesDir: FIX }), c, ["NVDA"]);
+    const by = Object.fromEntries(r.verdicts.map((v) => [v.subject.token_symbol + "|" + v.subject.issuer_name, v]));
+    expect(by["NVDAon|Ondo Assets"].signals.find((s) => s.id === "sale_restriction")?.status).toBe("fail");
+    expect(by["NVDA|Robinhood"].signals.find((s) => s.id === "sale_restriction")?.status).toBe("fail");
+    expect(by["NVDAX|Backed Assets"].signals.find((s) => s.id === "sale_restriction")?.status).toBe("pass");
+  });
+
+  it("every licence and restriction in the registry cites a source", async () => {
+    const { loadRegistry } = await import("../src/registry/load.js");
+    for (const i of (await loadRegistry()).issuers) {
+      if (i.licence) expect(i.licence.url).toMatch(/^https:\/\//);
+      for (const r of i.sale_restrictions ?? []) expect(r.source).toMatch(/^https:\/\//);
+    }
+  });
+});

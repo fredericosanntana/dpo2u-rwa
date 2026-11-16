@@ -116,6 +116,15 @@ export function saleRestriction(rec: IssuerRecord | undefined, profile: Policy["
       sources: hits.map((h) => h.source),
     };
   }
+  if (rec.sale_terms_complete === false) {
+    return {
+      id: "sale_restriction",
+      status: "warn",
+      detail: `No restriction found for ${profile.investor_type} investors in ${country}, but the issuer's full eligibility terms were not captured.`,
+      evidence: { restrictions_checked: rec.sale_restrictions.length },
+      sources: rec.sale_restrictions.map((r) => r.source),
+    };
+  }
   return {
     id: "sale_restriction",
     status: "pass",
